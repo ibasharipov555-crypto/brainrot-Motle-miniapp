@@ -106,8 +106,19 @@
       </div>
     </div>
 
-    <div id="result">Твоя коллекция начинается здесь!</div>
-
+    
+<div id="roulette" style="display:none; margin-top:20px; overflow:hidden; background:#100b20; border:1px solid #914dff; border-radius:14px; padding:14px;">
+  <div style="text-align:center;color:#d6aaff;margin-bottom:12px;">
+    🎰 РУЛЕТКА BRAINROT
+  </div>
+  <div style="position:relative;overflow:hidden;">
+    <div style="position:absolute;left:50%;top:0;bottom:0;width:3px;background:#ffe477;z-index:2;box-shadow:0 0 10px #ffe477;"></div>
+    <div id="track" style="display:flex;gap:8px;transform:translateX(0);">
+    </div>
+  </div>
+</div>
+<div id="result">Твоя коллекция начинается здесь!</div>
+    
     <div class="note">
       ⚡ Только Secret и OG брейнроты.<br>
       🎲 Сейчас это тестовый интерфейс.<br>
@@ -118,8 +129,84 @@
   <script>
     let coins = 1250;
 
-    function openCase(price, type) {
-      if (coins < price) {
+    
+function openCase(price, type) {
+  if (coins < price) {
+    document.getElementById('result').textContent =
+      'Недостаточно монет!';
+    return;
+  }
+
+  coins -= price;
+  document.getElementById('coins').textContent = coins;
+
+  const roulette = document.getElementById('roulette');
+  const track = document.getElementById('track');
+  const result = document.getElementById('result');
+
+  const secretItems = [
+    'SECRET BRAINROT',
+    'RARE SECRET',
+    'ULTIMATE SECRET'
+  ];
+
+  const ogItems = [
+    'OG BRAINROT',
+    'RARE OG',
+    'LEGENDARY OG'
+  ];
+
+  const items = type === 'OG' ? ogItems : secretItems;
+
+  roulette.style.display = 'block';
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';
+  track.innerHTML = '';
+
+  const cards = [];
+
+  for (let i = 0; i < 24; i++) {
+    const name = items[Math.floor(Math.random() * items.length)];
+    const card = document.createElement('div');
+
+    card.style.cssText =
+      'flex:0 0 125px;min-height:100px;padding:12px 6px;' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'text-align:center;border:1px solid #7540b8;border-radius:10px;' +
+      'background:linear-gradient(145deg,#291747,#110c20);' +
+      'color:#e5c9ff;font-size:12px;font-weight:bold;';
+
+    card.textContent = name;
+    track.appendChild(card);
+    cards.push({ card, name });
+  }
+
+  const winnerIndex = 20;
+  const winner = cards[winnerIndex];
+
+  winner.card.style.borderColor = '#ffe477';
+  winner.card.style.color = '#ffe477';
+
+  result.textContent = '🎰 Рулетка крутится...';
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const cardWidth = 133;
+      const container = roulette.clientWidth;
+      const target = winnerIndex * cardWidth -
+        (container / 2) + (cardWidth / 2);
+
+      track.style.transition = 'transform 4s cubic-bezier(.12,.72,.12,1)';
+      track.style.transform = 'translateX(-' + target + 'px)';
+
+      setTimeout(() => {
+        result.textContent = '🎉 Выпал: ' + winner.name + '!';
+      }, 4100);
+    });
+  });
+}
+    
+      if (coins < price) 
         document.getElementById('result').textContent =
           'Недостаточно монет!';
         return;
