@@ -2,160 +2,112 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brainrot Battle</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #080713;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
-    header {
-      padding: 22px 16px;
-      text-align: center;
-      background: #110c25;
-      border-bottom: 1px solid #6738b8;
-    }
-    h1 {
-      margin: 0;
-      color: #c78aff;
-      text-shadow: 0 0 18px #8d37ff;
-    }
-    header p { color: #aaa0c4; font-size: 12px; }
-    .balance {
-      margin: 18px 14px;
-      padding: 18px;
-      text-align: center;
-      background: #17112b;
-      border: 1px solid #7440be;
-      border-radius: 16px;
-    }
-    .coins { color: #ffe477; font-size: 28px; font-weight: bold; }
-    main { padding: 0 14px 30px; }
-    h2 { font-size: 19px; }
-    .cases {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .case {
-      padding: 16px 10px;
-      text-align: center;
-      background: linear-gradient(145deg, #20143b, #100d20);
-      border: 1px solid #59348b;
-      border-radius: 14px;
-    }
-    .emoji { font-size: 38px; }
-    .case h3 { font-size: 15px; }
-    .price { color: #ffe477; margin: 12px 0; }
-    button {
-      border: 0;
-      border-radius: 9px;
-      padding: 11px;
-      background: linear-gradient(90deg, #792cff, #c044ff);
-      color: white;
-      font-weight: bold;
-      width: 100%;
-      cursor: pointer;
-    }
-    .note {
-      margin-top: 18px;
-      padding: 14px;
-      background: #151022;
-      border-radius: 12px;
-      color: #b9adce;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-    #result {
-      margin-top: 16px;
-      text-align: center;
-      color: #d9a5ff;
-      font-weight: bold;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brainrot Battle</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080713;color:white;font-family:Arial,sans-serif}
+header{text-align:center;padding:22px 12px;background:#130c27;border-bottom:1px solid #8545dc}
+h1{margin:0;color:#d1a0ff;text-shadow:0 0 16px #913dff}
+header p{color:#bcb0ce;font-size:12px}
+.balance{margin:18px 14px;padding:18px;text-align:center;background:#17112b;border:1px solid #7440be;border-radius:16px}
+.coins{color:#ffe477;font-size:28px;font-weight:bold;margin-top:8px}
+main{padding:0 14px 30px}
+h2{font-size:19px}
+.cases{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.case{padding:16px 10px;text-align:center;background:linear-gradient(145deg,#251440,#100d20);border:1px solid #7040a8;border-radius:14px}
+.emoji{font-size:38px}
+.case h3{font-size:15px}
+.price{color:#ffe477;margin:12px 0}
+button{border:0;border-radius:9px;padding:12px;background:linear-gradient(90deg,#792cff,#c044ff);color:white;font-weight:bold;width:100%;cursor:pointer}
+button:disabled{opacity:.5}
+#roulette{display:none;margin-top:20px;overflow:hidden;background:#100b20;border:1px solid #914dff;border-radius:14px;padding:14px}
+.roulette-title{text-align:center;color:#d6aaff;margin-bottom:12px}
+.viewport{position:relative;overflow:hidden}
+#track{display:flex;gap:8px;transform:translateX(0)}
+.pointer{position:absolute;left:50%;top:0;bottom:0;width:3px;background:#ffe477;z-index:2;box-shadow:0 0 10px #ffe477}
+.card{flex:0 0 125px;min-height:100px;padding:10px 6px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid #7540b8;border-radius:10px;background:linear-gradient(145deg,#291747,#110c20);color:#e5c9ff;font-size:12px;font-weight:bold}
+#result{margin-top:16px;text-align:center;color:#d9a5ff;font-weight:bold;line-height:1.5}
+.note{margin-top:18px;padding:14px;background:#151022;border-radius:12px;color:#b9adce;font-size:13px;line-height:1.6}
+</style>
 </head>
 <body>
-  <header>
-    <h1>BRAINROT BATTLE</h1>
-    <p>СОБИРАЙ • ОТКРЫВАЙ • ПОБЕЖДАЙ</p>
-  </header>
+<header>
+<h1>BRAINROT BATTLE</h1>
+<p>СОБИРАЙ • ОТКРЫВАЙ • ПОБЕЖДАЙ</p>
+</header>
 
-  <div class="balance">
-    <div>ТВОЙ БАЛАНС</div>
-    <div class="coins"><span id="coins">1250</span> 🪙</div>
-  </div>
+<div class="balance">
+<div>ТВОЙ БАЛАНС</div>
+<div class="coins"><span id="coins">1250</span> 🪙</div>
+</div>
 
-  <main>
-    <h2>🎁 Секретные кейсы</h2>
-    <div class="cases">
-      <div class="case">
-        <div class="emoji">🔮</div>
-        <h3>SECRET CASE</h3>
-        <div class="price">100 🪙</div>
-        <button onclick="openCase(100,'SECRET')">Открыть</button>
-      </div>
-      <div class="case">
-        <div class="emoji">👑</div>
-        <h3>OG CASE</h3>
-        <div class="price">500 🪙</div>
-        <button onclick="openCase(500,'OG')">Открыть</button>
-      </div>
-    </div>
+<main>
+<h2>🎁 Секретные кейсы</h2>
+<div class="cases">
+<div class="case">
+<div class="emoji">🔮</div>
+<h3>SECRET CASE</h3>
+<div class="price">100 🪙</div>
+<button onclick="openCase(100,'SECRET')">Открыть</button>
+</div>
+<div class="case">
+<div class="emoji">👑</div>
+<h3>OG CASE</h3>
+<div class="price">500 🪙</div>
+<button onclick="openCase(500,'OG')">Открыть</button>
+</div>
+</div>
 
-    
-<div id="roulette" style="display:none; margin-top:20px; overflow:hidden; background:#100b20; border:1px solid #914dff; border-radius:14px; padding:14px;">
-  <div style="text-align:center;color:#d6aaff;margin-bottom:12px;">
-    🎰 РУЛЕТКА BRAINROT
-  </div>
-  <div style="position:relative;overflow:hidden;">
-    <div style="position:absolute;left:50%;top:0;bottom:0;width:3px;background:#ffe477;z-index:2;box-shadow:0 0 10px #ffe477;"></div>
-    <div id="track" style="display:flex;gap:8px;transform:translateX(0);">
-    </div>
-  </div>
+<div id="roulette">
+<div class="roulette-title">🎰 РУЛЕТКА BRAINROT</div>
+<div class="viewport">
+<div class="pointer"></div>
+<div id="track"></div>
+</div>
 </div>
 <div id="result">Твоя коллекция начинается здесь!</div>
-    
-    <div class="note">
-      ⚡ Только Secret и OG брейнроты.<br>
-      🎲 Сейчас это тестовый интерфейс.<br>
-      🔒 Баланс и настоящие награды подключим к серверу позже.
-    </div>
-  </main>
 
-  <script>
-    let coins = 1250;
+<div class="note">
+⚡ Только категории Secret и OG.<br>
+🎲 Это демонстрационный прототип с тестовыми названиями.<br>
+💾 Баланс пока не сохраняется после обновления страницы.<br>
+🔒 Серверную защиту подключим отдельно через Render.
+</div>
+</main>
 
-    
-function openCase(price, type) {
-  if (coins < price) {
-    document.getElementById('result').textContent =
-      'Недостаточно монет!';
+<script>
+let coins = 1250;
+let spinning = false;
+
+function openCase(price,type){
+  if(spinning) return;
+
+  const result = document.getElementById('result');
+  const roulette = document.getElementById('roulette');
+  const track = document.getElementById('track');
+  const coinsDisplay = document.getElementById('coins');
+
+  if(coins < price){
+    result.textContent = 'Недостаточно монет!';
     return;
   }
 
   coins -= price;
-  document.getElementById('coins').textContent = coins;
-
-  const roulette = document.getElementById('roulette');
-  const track = document.getElementById('track');
-  const result = document.getElementById('result');
+  coinsDisplay.textContent = coins;
+  spinning = true;
 
   const secretItems = [
     'SECRET BRAINROT',
     'RARE SECRET',
     'ULTIMATE SECRET'
   ];
-
   const ogItems = [
     'OG BRAINROT',
     'RARE OG',
     'LEGENDARY OG'
   ];
-
   const items = type === 'OG' ? ogItems : secretItems;
 
   roulette.style.display = 'block';
@@ -164,47 +116,38 @@ function openCase(price, type) {
   track.innerHTML = '';
 
   const cards = [];
-
-  for (let i = 0; i < 24; i++) {
-    const name = items[Math.floor(Math.random() * items.length)];
+  for(let i=0;i<30;i++){
+    const name = items[Math.floor(Math.random()*items.length)];
     const card = document.createElement('div');
-
-    card.style.cssText =
-      'flex:0 0 125px;min-height:100px;padding:12px 6px;' +
-      'display:flex;align-items:center;justify-content:center;' +
-      'text-align:center;border:1px solid #7540b8;border-radius:10px;' +
-      'background:linear-gradient(145deg,#291747,#110c20);' +
-      'color:#e5c9ff;font-size:12px;font-weight:bold;';
-
+    card.className = 'card';
     card.textContent = name;
     track.appendChild(card);
-    cards.push({ card, name });
+    cards.push({element:card,name:name});
   }
 
-  const winnerIndex = 20;
+  const winnerIndex = 24;
   const winner = cards[winnerIndex];
-
-  winner.card.style.borderColor = '#ffe477';
-  winner.card.style.color = '#ffe477';
+  winner.element.style.borderColor = '#ffe477';
 
   result.textContent = '🎰 Рулетка крутится...';
 
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
       const cardWidth = 133;
-      const container = roulette.clientWidth;
+      const viewport = roulette.querySelector('.viewport');
       const target = winnerIndex * cardWidth -
-        (container / 2) + (cardWidth / 2);
+        (viewport.clientWidth / 2) + (cardWidth / 2);
 
       track.style.transition = 'transform 4s cubic-bezier(.12,.72,.12,1)';
       track.style.transform = 'translateX(-' + target + 'px)';
 
-      setTimeout(() => {
-        result.textContent = '🎉 Выпал: ' + winner.name + '!';
-      }, 4100);
+      setTimeout(()=>{
+        result.textContent = '🎉 Выпало: ' + winner.name + '!';
+        spinning = false;
+      },4100);
     });
   });
 }
-  </script>
+</script>
 </body>
 </html>
