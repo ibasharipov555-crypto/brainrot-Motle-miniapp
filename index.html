@@ -1,1 +1,135 @@
 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brainrot Battle</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #080713;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      padding: 22px 16px;
+      text-align: center;
+      background: #110c25;
+      border-bottom: 1px solid #6738b8;
+    }
+    h1 {
+      margin: 0;
+      color: #c78aff;
+      text-shadow: 0 0 18px #8d37ff;
+    }
+    header p { color: #aaa0c4; font-size: 12px; }
+    .balance {
+      margin: 18px 14px;
+      padding: 18px;
+      text-align: center;
+      background: #17112b;
+      border: 1px solid #7440be;
+      border-radius: 16px;
+    }
+    .coins { color: #ffe477; font-size: 28px; font-weight: bold; }
+    main { padding: 0 14px 30px; }
+    h2 { font-size: 19px; }
+    .cases {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .case {
+      padding: 16px 10px;
+      text-align: center;
+      background: linear-gradient(145deg, #20143b, #100d20);
+      border: 1px solid #59348b;
+      border-radius: 14px;
+    }
+    .emoji { font-size: 38px; }
+    .case h3 { font-size: 15px; }
+    .price { color: #ffe477; margin: 12px 0; }
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 11px;
+      background: linear-gradient(90deg, #792cff, #c044ff);
+      color: white;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+    }
+    .note {
+      margin-top: 18px;
+      padding: 14px;
+      background: #151022;
+      border-radius: 12px;
+      color: #b9adce;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    #result {
+      margin-top: 16px;
+      text-align: center;
+      color: #d9a5ff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BRAINROT BATTLE</h1>
+    <p>СОБИРАЙ • ОТКРЫВАЙ • ПОБЕЖДАЙ</p>
+  </header>
+
+  <div class="balance">
+    <div>ТВОЙ БАЛАНС</div>
+    <div class="coins"><span id="coins">1250</span> 🪙</div>
+  </div>
+
+  <main>
+    <h2>🎁 Секретные кейсы</h2>
+    <div class="cases">
+      <div class="case">
+        <div class="emoji">🔮</div>
+        <h3>SECRET CASE</h3>
+        <div class="price">100 🪙</div>
+        <button onclick="openCase(100,'SECRET')">Открыть</button>
+      </div>
+      <div class="case">
+        <div class="emoji">👑</div>
+        <h3>OG CASE</h3>
+        <div class="price">500 🪙</div>
+        <button onclick="openCase(500,'OG')">Открыть</button>
+      </div>
+    </div>
+
+    <div id="result">Твоя коллекция начинается здесь!</div>
+
+    <div class="note">
+      ⚡ Только Secret и OG брейнроты.<br>
+      🎲 Сейчас это тестовый интерфейс.<br>
+      🔒 Баланс и настоящие награды подключим к серверу позже.
+    </div>
+  </main>
+
+  <script>
+    let coins = 1250;
+
+    function openCase(price, type) {
+      if (coins < price) {
+        document.getElementById('result').textContent =
+          'Недостаточно монет!';
+        return;
+      }
+
+      coins -= price;
+      document.getElementById('coins').textContent = coins;
+      document.getElementById('result').textContent =
+        '✨ ' + type + ' CASE открыт! Рулетку добавим следующим шагом.';
+    }
+  </script>
+</body>
+</html>
