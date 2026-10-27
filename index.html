@@ -1,153 +1,380 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Brainrot Battle</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#080713;color:white;font-family:Arial,sans-serif}
-header{text-align:center;padding:22px 12px;background:#130c27;border-bottom:1px solid #8545dc}
-h1{margin:0;color:#d1a0ff;text-shadow:0 0 16px #913dff}
-header p{color:#bcb0ce;font-size:12px}
-.balance{margin:18px 14px;padding:18px;text-align:center;background:#17112b;border:1px solid #7440be;border-radius:16px}
-.coins{color:#ffe477;font-size:28px;font-weight:bold;margin-top:8px}
-main{padding:0 14px 30px}
-h2{font-size:19px}
-.cases{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.case{padding:16px 10px;text-align:center;background:linear-gradient(145deg,#251440,#100d20);border:1px solid #7040a8;border-radius:14px}
-.emoji{font-size:38px}
-.case h3{font-size:15px}
-.price{color:#ffe477;margin:12px 0}
-button{border:0;border-radius:9px;padding:12px;background:linear-gradient(90deg,#792cff,#c044ff);color:white;font-weight:bold;width:100%;cursor:pointer}
-button:disabled{opacity:.5}
-#roulette{display:none;margin-top:20px;overflow:hidden;background:#100b20;border:1px solid #914dff;border-radius:14px;padding:14px}
-.roulette-title{text-align:center;color:#d6aaff;margin-bottom:12px}
-.viewport{position:relative;overflow:hidden}
-#track{display:flex;gap:8px;transform:translateX(0)}
-.pointer{position:absolute;left:50%;top:0;bottom:0;width:3px;background:#ffe477;z-index:2;box-shadow:0 0 10px #ffe477}
-.card{flex:0 0 125px;min-height:100px;padding:10px 6px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid #7540b8;border-radius:10px;background:linear-gradient(145deg,#291747,#110c20);color:#e5c9ff;font-size:12px;font-weight:bold}
-#result{margin-top:16px;text-align:center;color:#d9a5ff;font-weight:bold;line-height:1.5}
-.note{margin-top:18px;padding:14px;background:#151022;border-radius:12px;color:#b9adce;font-size:13px;line-height:1.6}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Brainrot Battle</title>
+  <!-- Подключаем скрипт Telegram Web App -->
+  <script src="https://telegram.org"></script>
+  <style>
+    :root {
+      --bg-color: #0b0e14;
+      --card-bg: #131722;
+      --accent-purple: #7b2cbf;
+      --accent-gold: #ffb703;
+      --text-main: #ffffff;
+      --text-muted: #707579;
+      --border-color: #242b3d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 16px;
+      padding-bottom: 40px;
+    }
+
+    /* Шапка с балансом */
+    .header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .header-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .balance-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .balance-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    .coin-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-gold);
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 10px rgba(255, 183, 3, 0.5);
+    }
+
+    /* Блок бесплатного кейса */
+    .free-case-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .free-badge {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: #22c55e;
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-bottom-right-radius: 8px;
+      text-transform: uppercase;
+    }
+
+    .free-case-img {
+      font-size: 40px;
+      background: rgba(255,255,255,0.05);
+      padding: 10px;
+      border-radius: 12px;
+    }
+
+    .free-case-info {
+      flex-grow: 1;
+    }
+
+    .free-case-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .free-case-timer {
+      font-size: 13px;
+      color: #ef4444;
+      font-weight: 500;
+    }
+
+    .btn-free {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-free:disabled {
+      background: #242b3d;
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* Сетка платных кейсов */
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .case-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .case-icon {
+      font-size: 54px;
+      margin: 12px 0;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    }
+
+    .case-name {
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .case-items-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .case-footer {
+      width: 100%;
+      margin-top: auto;
+    }
+
+    .btn-open {
+      width: 100%;
+      background: var(--accent-purple);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(123, 44, 191, 0.3);
+      transition: background 0.2s;
+    }
+
+    .btn-open:active {
+      background: #6a23a3;
+    }
+
+    .price-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: bold;
+    }
+
+    .price-coin {
+      width: 14px;
+      height: 14px;
+      background: var(--accent-gold);
+      border-radius: 50%;
+      display: inline-block;
+    }
+  </style>
 </head>
 <body>
-<header>
-<h1>BRAINROT BATTLE</h1>
-<p>СОБИРАЙ • ОТКРЫВАЙ • ПОБЕЖДАЙ</p>
-</header>
 
-<div class="balance">
-<div>ТВОЙ БАЛАНС</div>
-<div class="coins"><span id="coins">1250</span> 🪙</div>
-</div>
+  <!-- Блок баланса игрока -->
+  <div class="header">
+    <div class="header-title">Твой баланс</div>
+    <div class="balance-container">
+      <div class="balance-value" id="balance-display">0</div>
+      <div class="coin-icon"></div>
+    </div>
+  </div>
 
-<main>
-<h2>🎁 Секретные кейсы</h2>
-<div class="cases">
-<div class="case">
-<div class="emoji">🔮</div>
-<h3>SECRET CASE</h3>
-<div class="price">100 🪙</div>
-<button onclick="openCase(100,'SECRET')">Открыть</button>
-</div>
-<div class="case">
-<div class="emoji">👑</div>
-<h3>OG CASE</h3>
-<div class="price">500 🪙</div>
-<button onclick="openCase(500,'OG')">Открыть</button>
-</div>
-</div>
+  <!-- Блок бесплатного кейса с таймером -->
+  <div class="free-case-section">
+    <div class="free-badge">Бесплатно</div>
+    <div class="free-case-img">🎁</div>
+    <div class="free-case-info">
+      <div class="free-case-title">Бесплатный</div>
+      <div class="free-case-timer" id="free-case-status">Каждые 12 ч</div>
+    </div>
+    <button class="btn-free" id="btn-free-case" onclick="claimFreeCase()">Открыть</button>
+  </div>
 
-<div id="roulette">
-<div class="roulette-title">🎰 РУЛЕТКА BRAINROT</div>
-<div class="viewport">
-<div class="pointer"></div>
-<div id="track"></div>
-</div>
-</div>
-<div id="result">Твоя коллекция начинается здесь!</div>
+  <!-- Заголовок витрины -->
+  <div class="section-title">📦 Кейсы</div>
 
-<div class="note">
-⚡ Только категории Secret и OG.<br>
-🎲 Это демонстрационный прототип с тестовыми названиями.<br>
-💾 Баланс пока не сохраняется после обновления страницы.<br>
-🔒 Серверную защиту подключим отдельно через Render.
-</div>
-</main>
+  <!-- Сетка кейсов «2 в ряд» как в Brainrot Battle -->
+  <div class="cases-grid">
+    
+    <!-- Кейс Драгон -->
+    <div class="case-card">
+      <div class="case-icon">🐲</div>
+      <div class="case-name">Драгон</div>
+      <div class="case-items-count">18 предм.</div>
+      <div class="case-footer">
+        <button class="btn-open" onclick="openPaidCase('Драгон', 500)">
+          <span>500</span> <div class="price-coin"></div>
+        </button>
+      </div>
+    </div>
 
-<script>
-let coins = 1250;
-let spinning = false;
+    <!-- Кейс Тако -->
+    <div class="case-card">
+      <div class="case-icon">🌮</div>
+      <div class="case-name">Тако</div>
+      <div class="case-items-count">16 predm.</div>
+      <div class="case-footer">
+        <button class="btn-open" onclick="openPaidCase('Тако', 209)">
+          <span>209</span> <div class="price-coin"></div>
+        </button>
+      </div>
+    </div>
 
-function openCase(price,type){
-  if(spinning) return;
+    <!-- Кейс Нубини -->
+    <div class="case-card">
+      <div class="case-icon">👾</div>
+      <div class="case-name">Нубини</div>
+      <div class="case-items-count">18 предм.</div>
+      <div class="case-footer">
+        <button class="btn-open" onclick="openPaidCase('Нубини', 19)">
+          <span>19</span> <div class="price-coin"></div>
+        </button>
+      </div>
+    </div>
 
-  const result = document.getElementById('result');
-  const roulette = document.getElementById('roulette');
-  const track = document.getElementById('track');
-  const coinsDisplay = document.getElementById('coins');
+    <!-- Кейс Лаки-Блок -->
+    <div class="case-card">
+      <div class="case-icon">❓</div>
+      <div class="case-name">Лаки-Блок</div>
+      <div class="case-items-count">17 предм.</div>
+      <div class="case-footer">
+        <button class="btn-open" onclick="openPaidCase('Лаки-Блок', 259)">
+          <span>259</span> <div class="price-coin"></div>
+        </button>
+      </div>
+    </div>
 
-  if(coins < price){
-    result.textContent = 'Недостаточно монет!';
-    return;
-  }
+  </div>
 
-  coins -= price;
-  coinsDisplay.textContent = coins;
-  spinning = true;
+  <script>
+    // Автоматический выбор адреса сервера (локальный или текущий хост)
+    const API_URL = window.location.origin.includes('localhost') ? 'http://localhost:3000' : window.location.origin;
+    
+    // Инициализация Telegram WebApp параметров
+    let tgId = 12345; // Тестовый ID для проверки в обычном браузере
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+      if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+        tgId = window.Telegram.WebApp.initDataUnsafe.user.id;
+      }
+    }
 
-  const secretItems = [
-    'SECRET BRAINROT',
-    'RARE SECRET',
-    'ULTIMATE SECRET'
-  ];
-  const ogItems = [
-    'OG BRAINROT',
-    'RARE OG',
-    'LEGENDARY OG'
-  ];
-  const items = type === 'OG' ? ogItems : secretItems;
+    let userCoins = 0;
+    let timerInterval = null;
 
-  roulette.style.display = 'block';
-  track.style.transition = 'none';
-  track.style.transform = 'translateX(0)';
-  track.innerHTML = '';
+    // Функция загрузки информации о пользователе из БД
+    async function loadUserData() {
+      try {
+        const response = await fetch(`${API_URL}/api/user/${tgId}`);
+        const user = await response.json();
+        
+        userCoins = user.coins;
+        document.getElementById('balance-display').innerText = userCoins;
+        
+        handleFreeCaseTimer(user.lastFreeCaseAt);
+      } catch (err) {
+        console.error("Ошибка загрузки профиля:", err);
+      }
+    }
 
-  const cards = [];
-  for(let i=0;i<30;i++){
-    const name = items[Math.floor(Math.random()*items.length)];
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.textContent = name;
-    track.appendChild(card);
-    cards.push({element:card,name:name});
-  }
+    // Обработка 12-часового таймера обратного отсчета
+    function handleFreeCaseTimer(lastFreeCaseAt) {
+      if (timerInterval) clearInterval(timerInterval);
+      
+      const btn = document.getElementById('btn-free-case');
+      const statusText = document.getElementById('free-case-status');
 
-  const winnerIndex = 24;
-  const winner = cards[winnerIndex];
-  winner.element.style.borderColor = '#ffe477';
+      if (!lastFreeCaseAt) {
+        statusText.innerText = "Доступен сейчас!";
+        statusText.style.color = "#22c55e";
+        btn.disabled = false;
+        return;
+      }
 
-  result.textContent = '🎰 Рулетка крутится...';
-
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      const cardWidth = 133;
-      const viewport = roulette.querySelector('.viewport');
-      const target = winnerIndex * cardWidth -
-        (viewport.clientWidth / 2) + (cardWidth / 2);
-
-      track.style.transition = 'transform 4s cubic-bezier(.12,.72,.12,1)';
-      track.style.transform = 'translateX(-' + target + 'px)';
-
-      setTimeout(()=>{
-        result.textContent = '🎉 Выпало: ' + winner.name + '!';
-        spinning = false;
-      },4100);
-    });
-  });
-}
-</script>
-</body>
-</html>
+      const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+      
+      function updateTimer() {
+        const now = new Date();
+        const timePassed = now - new Date(lastFreeCaseAt);
+        
+        if (timePassed >= TWELVE_HOURS) {
+          statusText.innerText = "Доступен сейчас!";
+          statusText.style.color = "#22c55e";
+          btn.disabled = false;
+          clearInterval(timerInterval);
+        } else {
+          const remaining = TWELVE_HOURS - timePassed;
+          const hours = Math.floor(remaining / (1000 * 60 * 60));
+          const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+          
+          statusText.innerText = `Следующий через ${hours}ч ${minutes}м ${seconds}с`;
+          statusText.style.color = "#ef4444";
+          btn.disabled = true;
+        }
+    
