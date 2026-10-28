@@ -1,76 +1,130 @@
+
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import formbody from "@fastify/formbody";
 import { createClient } from "@supabase/supabase-js";
 import { Telegraf } from "telegraf";
 
-// 1. Инициализация сервера
+// 1. Создаём веб-сервер
 const app = Fastify({ logger: true });
+
 await app.register(cors);
 await app.register(formbody);
 
-// 2. Инициализация Supabase
+// 2. Подключаем Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("В Render не заданы SUPABASE_URL или SUPABASE_KEY");
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 3. Инициализация Telegram-бота через токен из Render
+// 3. Подключаем Telegram
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
+
 if (!botToken) {
-  console.error("Ошибка: Переменная TELEGRAM_BOT_TOKEN не найдена в Render!");
+  throw new Error("В Render не задан TELEGRAM_BOT_TOKEN");
 }
+
 const bot = new Telegraf(botToken);
 
-// Логика работы бота при команде /start
+// 4. Регистрация игрока
 bot.start(async (ctx) => {
-  const userId = ctx.from.id;
+  const telegramId = ctx.from.id;
   const username = ctx.from.username || "User";
 
   try {
-    // Пример запроса в Supabase: ищем пользователя в таблице 'users'
-    const { data, error } = await supabase
-      .from("users") 
-      .select("*")
-      .eq("telegram_id", userId);
+    const { data: player, error: findError } = await supabase
+      .from("players")
+      .select("id, telegram_id, username, coins")
+      .eq("telegram_id", telegramId)
+      .maybeSingle();
 
-    if (data && data.length === 0) {
-      // Если пользователя нет в базе — регистрируем его
-      await supabase
-        .from("users")
-        .insert([{ telegram_id: userId, username: username }]);
-      
-      await ctx.reply(`Привет, ${username}! Вы успешно зарегистрированы в базе данных Supabase!`);
-    } else {
-      // Если пользователь уже есть
-      await ctx.reply(`Рад видеть вас снова, ${username}! Ваш профиль уже активен.`);
+    if (findError) {
+      console.error("Ошибка поиска игрока:", findError.message);
+      await ctx.reply("Не удалось загрузить профиль. Попробуй позже.");
+      return;
     }
-  } catch (err) {
-    console.error("Ошибка при работе с базой:", err);
-    await ctx.reply("Привет! Сервер работает, но не удалось подключиться к таблице Supabase. Проверьте структуру БД.");
+
+    if (!player) {
+      const { data: newPlayer, error: insertError } = await supabase
+        .from("players")
+        .insert({
+          telegram_id: telegramId,
+          username: username,
+          coins: 0
+        })
+        .select("id, telegram_id, username, coins")
+        .single();
+
+      if (insertError) {
+        console.error("Ошибка регистрации:", insertError.message);
+        await ctx.reply("Не удалось создать профиль. Попробуй позже.");
+        return;
+      }
+
+      await ctx.reply(
+        `Привет, ${username}!\n` +
+        `Профиль создан.\n` +
+        `Баланс: ${newPlayer.coins ?? 0} монет.`
+      );
+      return;
+    }
+
+    if (player.username !== username) {
+      const { error: updateError } = await supabase
+        .from("players")
+        .update({ username })
+        .eq("telegram_id", telegramId);
+
+      if (updateError) {
+        console.error("Ошибка обновления имени:", updateError.message);
+      }
+    }
+
+    await ctx.reply(
+      `С возвращением, ${username}!\n` +
+      `Твой баланс: ${player.coins ?? 0} монет.`
+    );
+  } catch (error) {
+    console.error("Ошибка обработки /start:", error);
+    await ctx.reply("Ошибка сервера. Попробуй позже.");
   }
 });
 
-// Запускаем постоянный опрос Telegram (polling)
-bot.launch().then(() => {
-  console.log("Telegram бот успешно запущен и слушает команды!");
-}).catch((err) => {
-  console.error("Не удалось запустить Telegram бота:", err);
+// 5. Проверка состояния сервера
+app.get("/", async () => {
+  return {
+    name: "Brainrot Battle API",
+    status: "online"
+  };
 });
 
-// Тестовый роут для UptimeRobot, чтобы сервер не засыпал
-app.get("/", async (request, reply) => {
-  return { status: "Бот и веб-сервер работают круглосуточно!" };
+app.get("/health", async () => {
+  return { ok: true };
 });
 
-// Запуск веб-сервера Fastify
+// 6. Запускаем сервер и Telegram-бота
 const start = async () => {
   try {
-    await app.listen({ port: process.env.PORT || 3000, host: "0.0.0.0" });
-    console.log("Веб-сервер Fastify запущен!");
-  } catch (err) {
-    app.log.error(err);
+    await app.listen({
+      port: Number(process.env.PORT) || 3000,
+      host: "0.0.0.0"
+    });
+
+    await bot.launch();
+
+    console.log("Сервер и Telegram-бот успешно запущены.");
+  } catch (error) {
+    app.log.error(error);
     process.exit(1);
   }
 };
 
 start();
+
+// Корректное завершение работы
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));
