@@ -1,9 +1,11 @@
 import Fastify from "fastify";
-import cors from "@fastify/cors";process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
+import cors from "@fastify/cors";
 import formbody from "@fastify/formbody";
 import { createClient } from "@supabase/supabase-js";
 import { Telegraf } from "telegraf";
+
+// Отключаем строгую проверку SSL-сертификатов Node.js для обхода fetch failed
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 // 1. Создаём веб-сервер
 const app = Fastify({ logger: true });
@@ -11,19 +13,15 @@ const app = Fastify({ logger: true });
 await app.register(cors);
 await app.register(formbody);
 
-// 2. Подключаем Supabase (исправленный вариант с очисткой URL)
-let supabaseUrl = process.env.SUPABASE_URL;
+// 2. Подключаем Supabase (Адрес зашит напрямую для обхода багов Render)
+const supabaseUrl = "https://supabase.co";
 const supabaseKey = process.env.SUPABASE_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error("В Render не заданы SUPABASE_URL или SUPABASE_KEY");
+if (!supabaseKey) {
+  throw new Error("В Render не задан SUPABASE_KEY");
 }
 
-// Автоматически убираем лишние пробелы и слэш на конце, если они есть
-supabaseUrl = supabaseUrl.trim().replace(/\/$/, "");
-
-console.log(`Инициализация Supabase с URL: "${supabaseUrl}"`);
-
+console.log(`Инициализация Supabase с жестко зашитым URL: "${supabaseUrl}"`);
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // 3. Подключаем Telegram
@@ -114,16 +112,14 @@ app.get("/health", async () => {
 // 6. Запускаем сервер и Telegram-бота
 const start = async () => {
   try {
-    // Сначала полностью запускаем веб-сервер, чтобы Render увидел рабочий порт
     const address = await app.listen({
       port: Number(process.env.PORT) || 3000,
       host: "0.0.0.0"
     });
     console.log(`Сервер запущен на адресе: ${address}`);
 
-    // Запускаем бота без await, чтобы он работал параллельно и не вешал инициализацию
     bot.launch()
-      .then(() => console.log("Telegram-бот успешно запущен в режиме Long Polling."))
+      .then(() => console.log("Telegram-бот успешно запущен."))
       .catch((err) => console.error("Ошибка запуска Telegram-бота:", err));
 
   } catch (error) {
@@ -134,6 +130,6 @@ const start = async () => {
 
 start();
 
-//  завершение работы
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
+
