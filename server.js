@@ -1,5 +1,6 @@
 import Fastify from "fastify";
-import cors from "@fastify/cors";
+import cors from "@fastify/cors";process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 import formbody from "@fastify/formbody";
 import { createClient } from "@supabase/supabase-js";
 import { Telegraf } from "telegraf";
