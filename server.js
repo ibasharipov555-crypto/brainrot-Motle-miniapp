@@ -1,4 +1,3 @@
-
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import formbody from "@fastify/formbody";
@@ -109,14 +108,18 @@ app.get("/health", async () => {
 // 6. Запускаем сервер и Telegram-бота
 const start = async () => {
   try {
-    await app.listen({
+    // Сначала полностью запускаем веб-сервер, чтобы Render увидел рабочий порт
+    const address = await app.listen({
       port: Number(process.env.PORT) || 3000,
       host: "0.0.0.0"
     });
+    console.log(`Сервер запущен на адресе: ${address}`);
 
-    await bot.launch();
+    // Запускаем бота без await, чтобы он работал параллельно и не вешал инициализацию
+    bot.launch()
+      .then(() => console.log("Telegram-бот успешно запущен в режиме Long Polling."))
+      .catch((err) => console.error("Ошибка запуска Telegram-бота:", err));
 
-    console.log("Сервер и Telegram-бот успешно запущены.");
   } catch (error) {
     app.log.error(error);
     process.exit(1);
