@@ -14,7 +14,8 @@ await app.register(cors);
 await app.register(formbody);
 
 // 2. Подключаем Supabase (Адрес зашит напрямую для обхода багов Render)
-const supabaseUrl = "https://supabase.co";
+const supabaseUrl = "https://supabase.in";
+
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseKey) {
