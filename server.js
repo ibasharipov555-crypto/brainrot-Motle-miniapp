@@ -10,17 +10,21 @@ const app = Fastify({ logger: true });
 await app.register(cors);
 await app.register(formbody);
 
-// 2. Подключаем Supabase
-const supabaseUrl = process.env.SUPABASE_URL;
+// 2. Подключаем Supabase (исправленный вариант)
+let supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error("В Render не заданы SUPABASE_URL или SUPABASE_KEY");
 }
 
+// Этот код сам удалит лишние пробелы и косые черты, если они случайно есть
+supabaseUrl = supabaseUrl.trim().replace(/\/$/, "");
+
+console.log(`Инициализация Supabase с URL: "${supabaseUrl}"`);
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 3. Подключаем Telegram
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
 if (!botToken) {
@@ -44,8 +48,7 @@ bot.start(async (ctx) => {
     if (findError) {
       console.error("Ошибка поиска игрока:", findError.message);
       await ctx.reply("Не удалось загрузить профиль. Попробуй позже.");
-      return;
-    }
+      
 
     if (!player) {
       const { data: newPlayer, error: insertError } = await supabase
